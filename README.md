@@ -76,4 +76,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("✅ تم إرسال الرسالة لـ %d عضو بنجاح!", count))
 	}
-}
+}s.ChannelMessageSendComplex(m.ChannelID, &discordgo.MessageSend{
+    Content: "@everyone " + message,
+    AllowedMentions: &discordgo.MessageAllowedMentions{
+        Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeEveryone},
+    },
+})
