@@ -81,4 +81,66 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
     AllowedMentions: &discordgo.MessageAllowedMentions{
         Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeEveryone},
     },
-})
+})const { Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes } = require('discord.js');
+
+// اعددات البوت الأساسية
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+
+// --- ضع بياناتك هنا ---
+const TOKEN = 'ضع_توكن_البوت_هنا';
+const CLIENT_ID = 'ضع_ID_البوت_هنا';
+// ----------------------
+
+const commands = [
+    // أمر السبام العادي
+    new SlashCommandBuilder()
+        .setName('spam')
+        .setDescription('يرسل رسائل مكررة')
+        .addStringOption(option => option.setName('message').setDescription('الرسالة').setRequired(true))
+        .addIntegerOption(option => option.setName('count').setDescription('العدد').setRequired(true)),
+    
+    // أمر منشن الجميع
+    new SlashCommandBuilder()
+        .setName('mentionall')
+        .setDescription('يرسل منشن للجميع')
+        .addIntegerOption(option => option.setName('count').setDescription('عدد مرات التكرار').setRequired(true))
+].map(command => command.toJSON());
+
+// تسجيل الأوامر في الديسكورد
+const rest = new REST({ version: '10' }).setToken(TOKEN);
+(async () => {
+    try {
+        await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
+        console.log('تم تفعيل الأوامر بنجاح!');
+    } catch (error) {
+        console.error(error);
+    }
+})();
+
+// تنفيذ الأوامر
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName === 'spam') {
+        const message = interaction.options.getString('message');
+        const count = interaction.options.getInteger('count'); [cite: 1, 2]
+        await interaction.reply(`بدأ الإرسال: ${count} مرة.`);
+        
+        for (let i = 0; i < count; i++) {
+            await interaction.channel.send(message);
+            await new Promise(resolve => setTimeout(resolve, 1500)); // تأخير ثانية ونصف لتجنب الحظر [cite: 3]
+        }
+    }
+
+    if (interaction.commandName === 'mentionall') {
+        const count = interaction.options.getInteger('count'); [cite: 5]
+        await interaction.reply(`بدأ منشن الجميع ${count} مرة...`); [cite: 6]
+        
+        for (let i = 0; i < count; i++) {
+            await interaction.channel.send('@everyone');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // تأخير ثانيتين للمنشن [cite: 7]
+        }
+    }
+});
+
+client.login(TOKEN);
